@@ -1,0 +1,10 @@
+---
+title: "JSC370 Final Project"
+author: "Your Name"
+output: 
+    html_document
+---
+
+#Bruh
+
+This is an interesting homework
