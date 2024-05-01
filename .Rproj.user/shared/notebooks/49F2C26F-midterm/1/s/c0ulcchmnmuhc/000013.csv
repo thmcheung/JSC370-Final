@@ -1,0 +1,6 @@
+"0","legend(""center"","
+"0","       legend = c(""Test MSE"", ""Train MSE""),"
+"0","       col = c(""blue"", ""red""),"
+"0","       pch = c(19, 17),"
+"0","       lty = 1 # Line type"
+"0",")"

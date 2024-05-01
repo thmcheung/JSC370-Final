@@ -1,0 +1,4 @@
+"0","x <- mean(abs(as.numeric(predict(final_model, test)) - as.numeric(test$price)))"
+"2","Using 243 trees...
+
+"

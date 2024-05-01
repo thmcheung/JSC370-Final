@@ -1,10 +1,65 @@
 ---
 title: "JSC370 Final Project"
-author: "Your Name"
+author: "Ting Ho Marcus Cheung"
 output: 
-    html_document
+    html_document:
+      toc: TRUE
+      toc_float: TRUE
 ---
 
-#Bruh
+```{r echo = FALSE, include= FALSE}
+library(plotly)
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
+library(caret)
+canada_data <- read.csv('ca-dealers-used.csv')
+keeps <- c("vin", "price", "miles", "year", "make", "model", "body_type", "drivetrain", "engine_size", "fuel_type")
+data <- canada_data[, keeps]
+data <- filter(data, data$year >= 2005, na.rm = TRUE)
+data$year = data$year - 2005
+cleaned_data <- data %>% distinct(vin, miles, .keep_all = TRUE)
+cleaned_data$vin = NULL
+```
 
-This is an interesting homework
+This is the home page of the website, visit other pages to view intereactive plots and more detailed description of the report.
+
+# Project Description
+In this project, I tried to predict prices of the used car market in Canada, aiming to predict vehicle prices based on a multitude of factors such as mileage and brand.
+
+This page provides a brief summary of the project, a link to the full report is found on the top right corner of this page.
+
+# Dataset
+Utilizing a comprehensive dataset from Kaggle, which includes 393603 listings of used cars from 1981 to 2022. I filtered the data to only include cars older than 2005 since the average buyer will not buy anything older than that. The data has the 21 following variables, which are "body_type", "city", "drivetrain", "engine_block", "engine_size", "fuel_type", "id", "make", "miles", "model", "price", "seller_name", "state", "stock_no", "street", "transmission", "trim", vehicle_type", "vin", "year", and "zip". After careful selection, I only kept the vin as an unique identifier of the vehicles and selected 9 variables:
+
+* price (Response)
+* miles
+* year
+* make
+* model
+* body_type
+* drivetrain
+* engine_size
+* fuel_type
+
+This is an interactive table that displays the correlation between the variables.
+
+Visit the data page to see a more detailed presentation.
+
+# Modelling and results
+
+The core of this analysis involved selecting the best machine learning model out of Random Forest, Gradient Boosting, and Extreme Gradient Boosting to handle the predictive tasks. The models were tuned and tested to ensure robustness and were evaluated based on their ability to estimate real-world prices accurately. The most accurate model came out to be the Extreme Gradient Boosting model, where the average error it's prediction of vehicles in the entire dataset was about 3000 dollars.
+
+Afterwards, I manually entered the information of 5 Ford F-150 trucks and predicted their prices using the model. The prediction of Ford F-150 trucks on the market isn't accurate, but it does give an idea of the price range of the vehicle.
+
+Visit the modelling page for more detailed presentation.
+
+# Conclusion
+
+This detailed exploration is crucial for anyone interested in the dynamics of the used car market, providing valuable insights that assist both buyers and sellers to make informed decisions. Explore the complete project to uncover the intricate relationships between various car attributes and their impact on pricing in the Canadian market.

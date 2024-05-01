@@ -1,0 +1,5 @@
+"0","df <- data.frame("
+"0","  Model = c(""Random Forest"", ""Gradient Boosting"", ""Extreme Gradient Boosting""),"
+"0","  MeanAbsoluteError = c(mean(abs(as.numeric(predict(rf_model, test)) - as.numeric(test$price))), x, mean(abs(as.numeric(predict(xgbtree, test)) - as.numeric(test$price))))"
+"0",")"
+"0","kable(df, col.names = c(""Model"", ""Mean Absolute Error""), align = ""c"")"

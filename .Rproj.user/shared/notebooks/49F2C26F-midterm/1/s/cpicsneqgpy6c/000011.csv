@@ -1,0 +1,7 @@
+"0","top_8_makes <- names(sort(make_freq, decreasing = TRUE)[1:8])"
+"0","cleaned_data_top_8 <- cleaned_data[cleaned_data$make %in% top_8_makes, ]"
+"0","boxplot(price ~ make, data = cleaned_data_top_8,"
+"0","        main = ""Boxplot of Price for Top 8 Car Brands"","
+"0","        xlab = ""Car Brand"","
+"0","        ylab = ""Price"""
+"0",")"

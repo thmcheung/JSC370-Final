@@ -1,0 +1,6 @@
+"0","keeps <- c(""vin"", ""price"", ""miles"", ""year"", ""make"", ""model"", ""body_type"", ""drivetrain"", ""engine_size"", ""fuel_type"")"
+"0","data <- canada_data[, keeps]"
+"0","data <- filter(data, data$year >= 2005, na.rm = TRUE)"
+"0","data$year = data$year - 2005"
+"0","cleaned_data <- data %>% distinct(vin, miles, .keep_all = TRUE)"
+"0","cleaned_data <- na.omit(cleaned_data)"

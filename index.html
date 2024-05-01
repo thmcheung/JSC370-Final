@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Your Name" />
+<meta name="author" content="Ting Ho Marcus Cheung" />
 
 
 <title>JSC370 Final Project</title>
@@ -30,6 +30,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -223,6 +226,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -230,6 +296,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -250,18 +326,21 @@ $(document).ready(function () {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="results.html">Results</a>
+  <a href="data.html">Data</a>
+</li>
+<li>
+  <a href="results.html">Models</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/JSC370/JSC370-2024/">
+  <a href="https://github.com/thmcheung/JSC370-Final">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://jsc370.github.io/JSC370-2024/">JSC370 Home</a>
+  <a href="https://drive.google.com/file/d/1jwISxEDfyMT_mODZIp0o0uxptLuhUlAB/view">Link to report</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -273,16 +352,76 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">JSC370 Final Project</h1>
-<h4 class="author">Your Name</h4>
+<h4 class="author">Ting Ho Marcus Cheung</h4>
 
 </div>
 
 
-<p>#Bruh</p>
-<p>This is an interesting homework</p>
+<p>This is the home page of the website, visit other pages to view
+intereactive plots and more detailed description of the report.</p>
+<div id="project-description" class="section level1">
+<h1>Project Description</h1>
+<p>In this project, I tried to predict prices of the used car market in
+Canada, aiming to predict vehicle prices based on a multitude of factors
+such as mileage and brand.</p>
+<p>This page provides a brief summary of the project, a link to the full
+report is found on the top right corner of this page.</p>
+</div>
+<div id="dataset" class="section level1">
+<h1>Dataset</h1>
+<p>Utilizing a comprehensive dataset from Kaggle, which includes 393603
+listings of used cars from 1981 to 2022. I filtered the data to only
+include cars older than 2005 since the average buyer will not buy
+anything older than that. The data has the 21 following variables, which
+are “body_type”, “city”, “drivetrain”, “engine_block”, “engine_size”,
+“fuel_type”, “id”, “make”, “miles”, “model”, “price”, “seller_name”,
+“state”, “stock_no”, “street”, “transmission”, “trim”, vehicle_type”,
+“vin”, “year”, and “zip”. After careful selection, I only kept the vin
+as an unique identifier of the vehicles and selected 9 variables:</p>
+<ul>
+<li>price (Response)</li>
+<li>miles</li>
+<li>year</li>
+<li>make</li>
+<li>model</li>
+<li>body_type</li>
+<li>drivetrain</li>
+<li>engine_size</li>
+<li>fuel_type</li>
+</ul>
+<p>This is an interactive table that displays the correlation between
+the variables.</p>
+<p>Visit the data page to see a more detailed presentation.</p>
+</div>
+<div id="modelling-and-results" class="section level1">
+<h1>Modelling and results</h1>
+<p>The core of this analysis involved selecting the best machine
+learning model out of Random Forest, Gradient Boosting, and Extreme
+Gradient Boosting to handle the predictive tasks. The models were tuned
+and tested to ensure robustness and were evaluated based on their
+ability to estimate real-world prices accurately. The most accurate
+model came out to be the Extreme Gradient Boosting model, where the
+average error it’s prediction of vehicles in the entire dataset was
+about 3000 dollars.</p>
+<p>Afterwards, I manually entered the information of 5 Ford F-150 trucks
+and predicted their prices using the model. The prediction of Ford F-150
+trucks on the market isn’t accurate, but it does give an idea of the
+price range of the vehicle.</p>
+<p>Visit the modelling page for more detailed presentation.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>This detailed exploration is crucial for anyone interested in the
+dynamics of the used car market, providing valuable insights that assist
+both buyers and sellers to make informed decisions. Explore the complete
+project to uncover the intricate relationships between various car
+attributes and their impact on pricing in the Canadian market.</p>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -315,6 +454,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

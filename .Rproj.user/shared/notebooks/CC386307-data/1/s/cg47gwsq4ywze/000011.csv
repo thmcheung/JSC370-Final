@@ -1,0 +1,7 @@
+"0","p <- ggplot(cleaned_data, aes(x = price)) +"
+"0","  geom_histogram(bins = 100) +"
+"0","  labs(x = ""Price"", y = ""Frequency"", title = ""Price Distribution"")"
+"0",""
+"0","fig <- ggplotly(p)"
+"0",""
+"0","fig"

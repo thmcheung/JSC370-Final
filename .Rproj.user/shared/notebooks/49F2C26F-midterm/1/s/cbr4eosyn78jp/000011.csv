@@ -1,0 +1,3 @@
+"0","ggplot(cleaned_data, aes(x = price)) +"
+"0","  geom_histogram(bins = 100) +"
+"0","  labs(x = ""Price"", y = ""Frequency"", title = ""Price Distribution"")"

@@ -1,0 +1,72 @@
+"0","shrinkage_values <- seq(0.01, 0.1, length.out = 10)"
+"0","mse_values <- numeric(length(shrinkage_values))"
+"0","mse_train <- numeric(length(shrinkage_values))"
+"0","for (i in seq_along(shrinkage_values)) {"
+"0","  boost = gbm(price ~ ., data = train, distribution = ""gaussian"", n.trees = 500, shrinkage = shrinkage_values[i], cv.folds = 5, interaction.depth = 9)"
+"0","  yhat_boost<-predict(boost, test)"
+"0","  mse_values[i] <-mean((yhat_boost - test$price) ^ 2)"
+"0","  mse_train[i] <- mean((predict(boost, train) - train$price)^2)"
+"0","}"
+"2","Using 500 trees...
+
+"
+"2","Using 500 trees...
+
+"
+"2","Using 500 trees...
+
+"
+"2","Using 500 trees...
+
+"
+"2","Using 499 trees...
+
+"
+"2","Using 499 trees...
+
+"
+"2","Using 476 trees...
+
+"
+"2","Using 476 trees...
+
+"
+"2","Using 478 trees...
+
+"
+"2","Using 478 trees...
+
+"
+"2","Using 498 trees...
+
+"
+"2","Using 498 trees...
+
+"
+"2","Using 236 trees...
+
+"
+"2","Using 236 trees...
+
+"
+"2","Using 459 trees...
+
+"
+"2","Using 459 trees...
+
+"
+"2","Using 500 trees...
+
+"
+"2","Using 500 trees...
+
+"
+"2","Using 147 trees...
+
+"
+"2","Using 147 trees...
+
+"
+"0","optimal_shrinkage <- shrinkage_values[which.min(mse_values)]"
+"0","final_model <- gbm(price ~ ., data = train, distribution = ""gaussian"", n.trees = 500, shrinkage = optimal_shrinkage, cv.folds = 5, interaction.depth = 9)"
+"0","summary(final_model, n.trees = 500, plot = TRUE)"

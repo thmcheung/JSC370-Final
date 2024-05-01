@@ -1,0 +1,6 @@
+"0","chart <- summary(final_model, plot=FALSE)"
+"0","c <- data.frame("
+"0","  variable = chart$var,"
+"0","  rel.inf = chart$rel.inf"
+"0",")"
+"0","kable(c)"

@@ -1,0 +1,6 @@
+"0","plot(cleaned_data$miles, cleaned_data$price,"
+"0","     main = ""Scatter Plot of Price vs. Mileage(kms)"","
+"0","     xlab = ""Mileage"","
+"0","     ylab = ""Price"","
+"0","     pch = 16,"
+"0",")"

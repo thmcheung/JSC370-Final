@@ -1,0 +1,6 @@
+"0","make_freq <- table(cleaned_data$make)"
+"0","top_15_makes <- names(sort(make_freq, decreasing = TRUE)[1:15])"
+"0","cleaned_data_top_15 <- cleaned_data[cleaned_data$make %in% top_15_makes, ]"
+"0","ggplot(cleaned_data_top_15, aes(x = make)) +"
+"0","  geom_bar() +"
+"0","  labs(x = ""Brand"", y = ""Frequency"", title = ""Brand Distribution"")"

@@ -1,0 +1,5 @@
+"0","boxplot(price ~ body_type, data = cleaned_data,"
+"0","        main = ""Boxplot of Price for different body types"","
+"0","        xlab = ""Body type"","
+"0","        ylab = ""Price"""
+"0",")"

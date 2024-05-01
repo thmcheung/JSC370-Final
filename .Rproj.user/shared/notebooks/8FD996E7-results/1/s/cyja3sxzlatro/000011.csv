@@ -1,0 +1,8 @@
+"0","fig <- plot_ly(data, x = ~variable, y = ~rel_inf, type = 'bar',"
+"0","               marker = list(color = 'blue'))"
+"0",""
+"0","fig <- fig %>% layout(title = ""Bar Plot of Relative Influence of Gradient Boosting"","
+"0","                      yaxis = list(title = ""Relative Influence""),"
+"0","                      xaxis = list(title = ""Variable""))"
+"0",""
+"0","fig"

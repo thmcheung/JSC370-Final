@@ -1,0 +1,8 @@
+"0","rf_model <- randomForest("
+"0","  price ~.,"
+"0","  num.trees = 500,"
+"0","  data = train,"
+"0","  na.action = na.omit"
+"0",")"
+"0",""
+"0","varImpPlot(rf_model, main = ""Variance Importance Plot - Random Forest"")"

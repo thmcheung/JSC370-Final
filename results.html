@@ -9,10 +9,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Your Name" />
+<meta name="author" content="Ting Ho Marcus Cheung" />
 
 
-<title>Results</title>
+<title>Model selection and analysis</title>
 
 <script src="site_libs/header-attrs-2.25/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -36,6 +36,13 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
@@ -326,18 +333,21 @@ div.tocify {
   <a href="index.html">Home</a>
 </li>
 <li>
-  <a href="results.html">Results</a>
+  <a href="data.html">Data</a>
+</li>
+<li>
+  <a href="results.html">Models</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/JSC370/JSC370-2024/">
+  <a href="https://github.com/thmcheung/JSC370-Final">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://jsc370.github.io/JSC370-2024/">JSC370 Home</a>
+  <a href="https://drive.google.com/file/d/1jwISxEDfyMT_mODZIp0o0uxptLuhUlAB/view">Link to report</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -348,13 +358,71 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Results</h1>
-<h4 class="author">Your Name</h4>
+<h1 class="title toc-ignore">Model selection and analysis</h1>
+<h4 class="author">Ting Ho Marcus Cheung</h4>
 
 </div>
 
 
-<p>This is page 2</p>
+<div id="models" class="section level1">
+<h1>Models</h1>
+<p>In this project, three advanced machine learning models were
+developed to predict used car prices in Canada. Each model was chosen
+for its ability to handle large datasets and capture complex nonlinear
+relationships between variables.</p>
+<p>Below is the presentation of the variable importance of each of the
+models</p>
+<div id="random-forest" class="section level2">
+<h2>Random Forest</h2>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-fbfff155af2bd3fc3493" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-fbfff155af2bd3fc3493">{"x":{"visdat":{"968c122977c3":["function () ","plotlyVisDat"]},"cur_data":"968c122977c3","attrs":{"968c122977c3":{"x":{},"y":{},"marker":{"color":"green"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Bar Chart of Increase in Node Purity for Random Forest","yaxis":{"domain":[0,1],"automargin":true,"title":"Increase in Node Purity"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Variable","tickangle":-45,"type":"category","categoryorder":"array","categoryarray":["body_type","drivetrain","engine_size","fuel_type","make","miles","year"]},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["miles","year","make","body_type","drivetrain","engine_size","fuel_type"],"y":[270251144493,361123798498,187127181947,135996403415,203074901084,361850814729,94901027366],"marker":{"color":"green","line":{"color":"rgba(31,119,180,1)"}},"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="gradient-boosting" class="section level2">
+<h2>Gradient Boosting</h2>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-c602d367e238d6526a8e" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-c602d367e238d6526a8e">{"x":{"visdat":{"968c91f53ce":["function () ","plotlyVisDat"]},"cur_data":"968c91f53ce","attrs":{"968c91f53ce":{"x":{},"y":{},"marker":{"color":"blue"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Bar Plot of Relative Influence of Gradient Boosting","yaxis":{"domain":[0,1],"automargin":true,"title":"Relative Influence"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Variable","type":"category","categoryorder":"array","categoryarray":["body_type","drivetrain","engine_size","fuel_type","make","miles","year"]},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["engine_size","year","drivetrain","miles","make","fuel_type","body_type"],"y":[25.119385000000001,19.551015,16.744340999999999,15.933598,10.802827000000001,6.2932059999999996,5.5556289999999997],"marker":{"color":"blue","line":{"color":"rgba(31,119,180,1)"}},"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="extreme-gradient-boosting" class="section level2">
+<h2>Extreme Gradient Boosting</h2>
+<p>These are the 10 most influential variables (values of categorical
+variables are counted as variables)</p>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-279254202f1297b5170b" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-279254202f1297b5170b">{"x":{"visdat":{"968c340278d":["function () ","plotlyVisDat"]},"cur_data":"968c340278d","attrs":{"968c340278d":{"x":{},"y":{},"marker":{"color":"purple"},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Bar Chart of Relative Influence of Extreme Gradient Boosting","yaxis":{"domain":[0,1],"automargin":true,"title":"Relative Influence"},"xaxis":{"domain":[0,1],"automargin":true,"title":"Variable","tickangle":-45,"type":"category","categoryorder":"array","categoryarray":["body_typePickup","body_typeSUV","drivetrain4WD","drivetrainFWD","engine_size","fuel_typePremium Unleaded","fuel_typeUnleaded","makeMercedes-Benz","miles","year"]},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["engine_size","miles","year","drivetrainFWD","fuel_typeUnleaded","drivetrain4WD","fuel_typePremium Unleaded","body_typePickup","makeMercedes-Benz","body_typeSUV"],"y":[100,76.697999999999993,65.567999999999998,55.712000000000003,10.571999999999999,9.282,8.8960000000000008,8.4619999999999997,4.8719999999999999,4.4000000000000004],"marker":{"color":"purple","line":{"color":"rgba(31,119,180,1)"}},"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>A similarity between all of the models is that the engine size,
+mileage, and model year are the most important factor in determining car
+prices.</p>
+</div>
+</div>
+<div id="final-selection" class="section level1">
+<h1>Final selection</h1>
+<p>After training the models, I used them to predict the price of all
+listings in the test dataset, I then checked the average accuracy of
+predictted price to select the final model.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Model</th>
+<th align="center">Mean Absolute Error</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Random Forest</td>
+<td align="center">3095.312</td>
+</tr>
+<tr class="even">
+<td align="center">Gradient Boosting</td>
+<td align="center">3164.283</td>
+</tr>
+<tr class="odd">
+<td align="center">Extreme Gradient Boosting</td>
+<td align="center">2978.323</td>
+</tr>
+</tbody>
+</table>
+<p>As shown, extreme gradient boosting has the lowest average absolute
+error, so I picked it as the best model.</p>
+</div>
 
 
 

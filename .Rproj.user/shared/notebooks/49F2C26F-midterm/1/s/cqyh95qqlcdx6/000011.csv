@@ -1,0 +1,5 @@
+"0","boxplot(price ~ drivetrain, data = cleaned_data,"
+"0","        main = ""Boxplot of Price for Top 5 Car Brands"","
+"0","        xlab = ""Drive Train"","
+"0","        ylab = ""Price"""
+"0",")"

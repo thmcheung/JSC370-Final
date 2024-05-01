@@ -1,0 +1,4 @@
+"0","varimp <- varImp("
+"0","  xgbtree"
+"0",")"
+"0","kable(head(varimp$importance, caption = ""Variable Importance"", n = 10))"

@@ -1,0 +1,2 @@
+"0","fit <- lm(price ~ engine_size, data = cleaned_data)"
+"0","abline(fit, col = ""red"")"

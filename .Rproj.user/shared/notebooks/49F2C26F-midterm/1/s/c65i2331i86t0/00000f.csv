@@ -1,0 +1,2 @@
+"0","top_min_results$vin <- NULL"
+"0","kable(top_min_results, caption = ""most accurate predictions"")"

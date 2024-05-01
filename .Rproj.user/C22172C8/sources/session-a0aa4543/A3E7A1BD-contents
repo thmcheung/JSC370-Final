@@ -1,0 +1,117 @@
+---
+title: "Data"
+author: "Ting Ho Marcus Cheung"
+output: 
+    html_document:
+      toc: TRUE
+      toc_float: TRUE
+---
+```{r include = FALSE}
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
+library(caret)
+library(plotly)
+canada_data <- read.csv('ca-dealers-used.csv')
+keeps <- c("vin", "price", "miles", "year", "make", "model", "body_type", "drivetrain", "engine_size", "fuel_type")
+data <- canada_data[, keeps]
+data <- filter(data, data$year >= 2005, na.rm = TRUE)
+data$year = data$year - 2005
+cleaned_data <- data %>% distinct(vin, miles, .keep_all = TRUE)
+cleaned_data <- na.omit(cleaned_data)
+```
+
+# Data summary
+The exploratory data analysis phase of this project involved a deep dive into the Canadian used car listings dataset obtained from Kaggle. The primary goal was to understand the underlying patterns and distributions in the data, which would inform the subsequent modeling phase. 
+
+I filtered the data so that it only includes cars that were manufactured after 2005. Because I'm only interested in a selected few variables, I only kept the selected variables:
+
+* vin (to avoid redundancy, not part of prediction)
+* price
+* miles (is actually in kms since its Canada)
+* year
+* make
+* model
+* body_type
+* drivetrain
+* engine_size
+* fuel_type
+
+# Data distribution
+
+```{r echo = FALSE}
+p <- ggplot(cleaned_data, aes(x = price)) +
+  geom_histogram(bins = 100) +
+  labs(x = "Price", y = "Frequency", title = "Price Distribution")
+
+fig <- ggplotly(p)
+
+fig
+```
+
+Most cars fall in between 0 to 100,000 dollar range. Specifically, between 10,000 to 40,000 CAD. However, the most expensive car is over 600,000 CAD. The price distribution is reflected in the model's prediction, as the final selected model is bad at predicting prices of high end luxury vehicles.
+
+# Interaction
+
+As discussed in the modelling page, I will present the correlation of the most important variables with the price.
+
+## Engine size
+```{r echo = FALSE}
+plot(cleaned_data$engine_size, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Engine Displacement",
+     xlab = "Enging Displacement",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ engine_size, data = cleaned_data)
+abline(fit, col = "red")
+```
+
+## Year
+```{r echo = FALSE, fig.align='center'}
+plot(cleaned_data$year, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Year",
+     xlab = "Year",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ year, data = cleaned_data)
+abline(fit, col = "red")
+```
+
+## Mileage
+
+```{r echo = FALSE}
+plot(cleaned_data$miles, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Year",
+     xlab = "Mileage",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ miles, data = cleaned_data)
+abline(fit, col = "red")
+```
+
+## Brand
+This is the box plot of the prices of top 8 brands.
+
+```{r echo = FALSE}
+make_freq <- table(cleaned_data$make)
+top_8_makes <- names(sort(make_freq, decreasing = TRUE)[1:8])
+cleaned_data_top_8 <- cleaned_data[cleaned_data$make %in% top_8_makes, ]
+price_limits <- quantile(cleaned_data_top_8$price, probs = c(0.01, 0.99))
+
+fig <- plot_ly(cleaned_data_top_8, y = ~price, x = ~make, type = 'box',
+               boxpoints = "outliers",
+               marker = list(color = 'rgb(8,81,156)')) %>%
+  layout(title = "Boxplot of Price for Top 8 Car Brands",
+         yaxis = list(title = "Price", range = price_limits),
+         xaxis = list(title = "Car Brand"))
+fig
+```

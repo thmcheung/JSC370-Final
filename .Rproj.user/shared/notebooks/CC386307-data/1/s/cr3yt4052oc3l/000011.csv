@@ -1,0 +1,2 @@
+"0","fit <- lm(price ~ miles, data = cleaned_data)"
+"0","abline(fit, col = ""red"")"

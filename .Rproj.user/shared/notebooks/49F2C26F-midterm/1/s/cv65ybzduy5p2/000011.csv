@@ -1,0 +1,3 @@
+"0","sneak <- head(cleaned_data)"
+"0","sneak$vin <- NULL"
+"0","kable(sneak)"

@@ -1,0 +1,5 @@
+"0","df <- data.frame("
+"0","  Model = c(""Random Forest"", ""Gradient Boosting"", ""Extreme Gradient Boosting""),"
+"0","  MeanAbsoluteError = c(3095.312, 3164.283, 2978.323)"
+"0",")"
+"0","kable(df, col.names = c(""Model"", ""Mean Absolute Error""), align = ""c"")"

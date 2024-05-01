@@ -1,8 +1,89 @@
 ---
-title: "Results"
-author: "Your Name"
+title: "Model selection and analysis"
+author: "Ting Ho Marcus Cheung"
 output: 
     html_document:
+      toc: TRUE
+      toc_float: TRUE
 ---
+```{r echo = FALSE, include = FALSE}
+library(plotly)
+library(knitr)
+```
 
-This is page 2
+# Models
+In this project, three advanced machine learning models were developed to predict used car prices in Canada. Each model was chosen for its ability to handle large datasets and capture complex nonlinear relationships between variables.
+
+Below is the presentation of the variable importance of each of the models
+
+## Random Forest
+```{r echo = FALSE}
+data <- data.frame(
+  variable = c("miles", "year", "make", "body_type", "drivetrain", "engine_size", "fuel_type"),
+  IncNodePurity = c(270251144493, 361123798498, 187127181947, 135996403415, 203074901084, 361850814729, 94901027366)
+)
+
+fig <- plot_ly(data, x = ~variable, y = ~IncNodePurity, type = 'bar',
+               marker = list(color = 'green'))
+
+fig <- fig %>% layout(title = "Bar Chart of Increase in Node Purity for Random Forest",
+                      yaxis = list(title = "Increase in Node Purity"),
+                      xaxis = list(title = "Variable", tickangle = -45))
+fig
+```
+
+
+## Gradient Boosting
+```{r echo = FALSE}
+data <- data.frame(
+  variable = c("engine_size", "year", "drivetrain", "miles", "make", "fuel_type", "body_type"),
+  rel_inf = c(25.119385, 19.551015, 16.744341, 15.933598, 10.802827, 6.293206, 5.555629)
+)
+
+fig <- plot_ly(data, x = ~variable, y = ~rel_inf, type = 'bar',
+               marker = list(color = 'blue'))
+
+fig <- fig %>% layout(title = "Bar Plot of Relative Influence of Gradient Boosting",
+                      yaxis = list(title = "Relative Influence"),
+                      xaxis = list(title = "Variable"))
+
+fig
+```
+
+## Extreme Gradient Boosting
+
+These are the 10 most influential variables (values of categorical variables are counted as variables)
+
+```{r echo = FALSE}
+
+data <- data.frame(
+  variable = c("engine_size", "miles", "year", "drivetrainFWD", "fuel_typeUnleaded", 
+               "drivetrain4WD", "fuel_typePremium Unleaded", "body_typePickup", 
+               "makeMercedes-Benz", "body_typeSUV"),
+  Overall = c(100.000, 76.698, 65.568, 55.712, 10.572, 9.282, 8.896, 8.462, 4.872, 4.400)
+)
+
+fig <- plot_ly(data, x = ~variable, y = ~Overall, type = 'bar',
+               marker = list(color = 'purple'))
+fig <- fig %>% layout(title = "Bar Chart of Relative Influence of Extreme Gradient Boosting",
+                      yaxis = list(title = "Relative Influence"),
+                      xaxis = list(title = "Variable", tickangle = -45))
+fig
+
+```
+
+A similarity between all of the models is that the engine size, mileage, and model year are the most important factor in determining car prices.
+
+# Final selection
+
+After training the models, I used them to predict the price of all listings in the test dataset, I then checked the average accuracy of predictted price to select the final model.
+
+```{r echo = FALSE}
+df <- data.frame(
+  Model = c("Random Forest", "Gradient Boosting", "Extreme Gradient Boosting"),
+  MeanAbsoluteError = c(3095.312, 3164.283, 2978.323)
+)
+kable(df, col.names = c("Model", "Mean Absolute Error"), align = "c")
+```
+
+As shown, extreme gradient boosting has the lowest average absolute error, so I picked it as the best model.

@@ -1,0 +1,5 @@
+"0","```r
+library(dplyr)
+library(tidyverse)
+canada_data <- read.csv('ca-dealers-used.csv')
+```"

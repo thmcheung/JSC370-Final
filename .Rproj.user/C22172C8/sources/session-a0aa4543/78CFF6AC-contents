@@ -1,0 +1,468 @@
+---
+title: "Final Report"
+author: "Ting Ho Marcus Cheung"
+date: "April 29, 2024"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+# Introduction
+Most Canadian cities are very car-centric, which means that personal vehicles are necessities and core of day to day life. Ever since the global pandemic in 2020, the economy has been performing poorly throughout the continent: low economic growth, high inflation, and layoffs have been the norm for the past 4 years. Since cars are vital for day to day life here and are an expensive purchase, purchasing brand new vehicles have become out of reach for most people. Thus, the question arises:
+
+How do we predict used car prices based on their year of production, body type, brand/model, engine displacement, drivetrain, and odometer kilometers?
+
+Specifically, I want to find out the speed of depreciation on vehicles with time together with other factors. I believe answering this question will allow me to find the best time to purchase a used vehicle, find the most reliable (depreciation rate wise) vehicle, and evaluate the different aspects that affect prices of cars to make the best decisions financially. Lastly, by building a model of pricing with these factors, I can potentially help car sellers settle down with a price to sell their cars.
+
+# Methods
+To answer this question, I will use a dataset I found of Kaggle: "Used cars listings for US & Canada" and use only the dataset for Canada. The link is attached to the bottom of this report. The dataset contains data of online listing of cars from that were manufactured in 1981 to 2022. As stated on Kaggle, "Individual listing records show year, make, model and trim, with VIN-level histories, showing the most recent time the car showed up online back to the earliest, with every change that occurred over that time". Furthermore, the dataset is collected across 8 years, where the latest was collected in 2022, which means that the first data was collected around 2014, which means that a car manufactured in 2013 might not be 9 years old when it was included in the dataset. Therefore, when looking at depreciation, I will strictly look at cars that appeared more than once. After exploring trends and building appropriate models using the data, I will parse through Autotrader to get come current listings to test the accuracy of the conclusion drawn from the Kaggle dataset.
+
+## Data exploration
+I downloaded the data from kaggle and loaded it into an RMD file and stored it in the variable "canada_data". After running some summary functions such as ls, head, tail and nrow , I found that the earliest car ever produced was in 1981 and the latest was in 2022. The data has the 21 following variables, which are "body_type", "city", "drivetrain", "engine_block", "engine_size", "fuel_type", "id", "make", "miles", "model", "price", "seller_name", "state", "stock_no", "street", "transmission", "trim", vehicle_type", "vin", "year", and "zip". The variable names are very self explainatory except id, which is a unique identifier for the listing. I did find some problems, that I will need to address in the data cleaning and wrangling process. There are a total of 393603 rows in the data.
+
+```{r include = FALSE}
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
+library(caret)
+canada_data <- read.csv('ca-dealers-used.csv')
+```
+
+```{r include = FALSE}
+min(canada_data$year, na.rm = TRUE)
+max(canada_data$year, na.rm = TRUE)
+ls(canada_data)
+nrow(canada_data)
+head(canada_data)
+filter(canada_data, year < 1990)
+filter(canada_data, year == 1981)
+```
+
+### Data Cleaning and Wrangling
+After looking at the older cars in the data, I noticed that a lot of them are not regular cars. For example, one of the oldest cars in the dataset is a Porsche Turbo, which is listed for 120,000 Canadian Dollars, which is very expensive. This is because it is considered a classic car, which means it is more of a collection than a means of transportation. Therefore, the first step I did was to exclusively select vehicles that were manufactured after the year 2005. Since I was performing modelling, I deducted 2005 from the year variable in the filtered dataset so it would start at 1 (2006) and end at 17 (2022) to avoid large numbers.
+
+After that, I found some problems with the data as there are vehicles listed more than once in the dataset on the same year, same price, same mileage, but different dealers. For example, the 4th and 5th entry are both the same Acura NSX listed in Drive Autogroup and Acura Pickering. Therefore, I kept only 1 listing of the same vehicle (vin) at he same price and miles by using the distinct function.
+
+Because I'm only interested in a selected few variables, I only kept the selected variables:
+
+* vin
+* price
+* miles (is actually in kms since its Canada)
+* year
+* make
+* model
+* body_type
+* drivetrain
+* engine_size
+* fuel_type
+
+After performing further tests and checks for anomalies in the data, I found that many rows have missing data and they are represented as NA. Since I have large amounts of data, I removed all rows with NA. After this, there are only 157793 entries left.
+
+```{r echo = FALSE}
+keeps <- c("vin", "price", "miles", "year", "make", "model", "body_type", "drivetrain", "engine_size", "fuel_type")
+data <- canada_data[, keeps]
+data <- filter(data, data$year >= 2005, na.rm = TRUE)
+data$year = data$year - 2005
+cleaned_data <- data %>% distinct(vin, miles, .keep_all = TRUE)
+cleaned_data <- na.omit(cleaned_data)
+```
+
+Here is a sneak peak of the cleaned data where I removed VIN since it takes up too much space:
+```{r echo = FALSE}
+sneak <- head(cleaned_data)
+sneak$vin <- NULL
+kable(sneak)
+```
+
+### Data distribution
+I will plot some graphs to figure out the distribution of my cleaned data first.
+
+```{r echo = FALSE}
+ggplot(cleaned_data, aes(x = price)) +
+  geom_histogram(bins = 100) +
+  labs(x = "Price", y = "Frequency", title = "Price Distribution")
+```
+
+As shown in the price distribution histogram, as expected, most cars fall in between 0 to 100,000 dollar range. Specifically, between 10,000 to 40,000 CAD.
+
+```{r echo = FALSE}
+ggplot(cleaned_data, aes(x = year + 2005)) +
+  geom_histogram(bins = 100) +
+  labs(x = "Year", y = "Frequency", title = "Year Distribution")
+```
+
+As mentioned earlier, the earliest year in my cleaned data is 2005 and the latest is 2021. The most common years are the years between 2015 and 2020, as this data set was fetched in those years.
+
+```{r echo = FALSE}
+ggplot(cleaned_data, aes(x = miles)) +
+  geom_histogram(bins = 100) +
+  labs(x = "Mileage", y = "Frequency", title = "Mileage Distribution")
+```
+
+As shown, most of the cars have low mileage.
+
+```{r echo = FALSE}
+ggplot(cleaned_data,aes(x = make)) +
+  geom_bar() +
+  labs(x = "Brand", y = "Frequency", title = "Brand Distribution")
+```
+
+There are many brands, but only around 15 of them have decent quantity. In the modelling, I will only train the model based on this data.
+
+```{r echo = FALSE}
+make_freq <- table(cleaned_data$make)
+top_15_makes <- names(sort(make_freq, decreasing = TRUE)[1:15])
+cleaned_data_top_15 <- cleaned_data[cleaned_data$make %in% top_15_makes, ]
+ggplot(cleaned_data_top_15, aes(x = make)) +
+  geom_bar() +
+  labs(x = "Brand", y = "Frequency", title = "Brand Distribution")
+```
+
+As shown in the brand bar graph, these are the most popular 15 brands. Unsurprisingly, Ford is the most popular brand.
+
+```{r echo = FALSE}
+ggplot(cleaned_data, aes(x = engine_size)) +
+  geom_histogram(bins = 30) +
+  labs(x = "Engine Size", y = "Frequency", title = "Engine Displacement Distribution")
+```
+
+As shown in histogram, the most frequent engine size is around 2, this could be because 2 liter engines are exceedingly popular nowadays.
+
+First, I will address the elephant in the room by plotting a graph to see the relationship between the year of production vs the price:
+```{r echo = FALSE, fig.align='center'}
+plot(cleaned_data$year, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Year",
+     xlab = "Year",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ year, data = cleaned_data)
+abline(fit, col = "red")
+```
+As shown from the red line, there is a trend that price increases as the model gets newer. This is expected because of depreciation of old cars and inflation in cost of things.
+
+```{r echo = FALSE}
+plot(cleaned_data$miles, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Mileage(kms)",
+     xlab = "Mileage",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ engine_size, data = cleaned_data)
+abline(fit, col = "red")
+```
+
+There is a strong negative relationship betwewen miles and price as shown in the scatterplot. This is intuitive because cars depreciate the more you drive them.
+
+```{r echo = FALSE}
+plot(cleaned_data$engine_size, cleaned_data$price,
+     main = "Scatter Plot of Price vs. Engine Displacement",
+     xlab = "Enging Displacement",
+     ylab = "Price",
+     pch = 16,
+)
+fit <- lm(price ~ engine_size, data = cleaned_data)
+abline(fit, col = "red")
+```
+
+As shown in scatterplot, there is a positive relationship between the engine displacement and the year. Something to look out for, is the cluster of engine displacement of 0, because they are electric cars, which may need to be addressed in the final project.
+
+
+```{r echo = FALSE}
+top_8_makes <- names(sort(make_freq, decreasing = TRUE)[1:8])
+cleaned_data_top_8 <- cleaned_data[cleaned_data$make %in% top_8_makes, ]
+boxplot(price ~ make, data = cleaned_data_top_8,
+        main = "Boxplot of Price for Top 8 Car Brands",
+        xlab = "Car Brand",
+        ylab = "Price"
+)
+```
+
+As shown in the box plot of the price distribution of the top 5 brands, I notice that different brands have different distributions. BMW has higher prices in general as its mean and quantiles are all higher than the other 7 brands.
+
+```{r echo = FALSE}
+boxplot(price ~ body_type, data = cleaned_data,
+        main = "Boxplot of Price for different body types",
+        xlab = "Body type",
+        ylab = "Price"
+)
+```
+
+As shown in the boxplot above, different body types correspond to different price ranges.
+
+```{r echo = FALSE}
+boxplot(price ~ drivetrain, data = cleaned_data,
+        main = "Boxplot of Price for Top 5 Car Brands",
+        xlab = "Drive Train",
+        ylab = "Price"
+)
+```
+
+For drivetrain, RWD and 4WD are more expensive than 4wd in general. Furthermore, there is a large amount of listings that didn't label the drivetrain of the car.
+
+### Summary of data
+I have found substantial support that there is correlation between different factors of a car and its listed price, which in turns mean I may be able to build a model to predict the price based on other information given.
+
+However, there are some problems already identified in my midterm report.
+
+Firstly, electric cars have an engine displacement of 0, which can scew results.
+
+Secondly, when exploring the relationships, particularly year, engine displacement, and mileage, I fitted a linear model and looked at their relationship. The true relationship might not be linear. Nonetheless, the linear plots give an idea of how the variables affects price.
+
+Lastly, there may be multicollinearity and confounding in the variables. For example, year definitely affects mileage and brand affects engine displacement (luxury brands usually have bigger engines by intuition ).
+
+## Modelling
+I will use machine learning to predict car prices. From previous experience and the nature of the data, I will use random forest, gradient boosting, and extreme gradient boosting to predict car prices. For each model, I will try different parameters to fine tune the model. After that, I will compare the performance of the models by comparing their mean squared errors. Besides predictions of car prices, by interpreting the variance importance plot generated by these models, we can also understand how important each variable is in prediction. 
+
+For these models, I will use miles, year, make, body_type, drivetrain, engine_size, and fuel_type to make predictions. I chose to ommit VIN since it serves as a primary key in the dataset, I also chose to ommit model since there are too many unique models to the point where I think it is possible. Furthermore, I limited the make of the cars to the top 15 cars since the sample size is too small for some exotic car brands. I will split the data into training and testing data.
+
+```{r echo = FALSE}
+set.seed(123)
+cleaned_data_top_15$make <- as.factor(cleaned_data_top_15$make)
+cleaned_data_top_15$body_type <- as.factor(cleaned_data_top_15$body_type)
+cleaned_data_top_15$drivetrain <- as.factor(cleaned_data_top_15$drivetrain)
+cleaned_data_top_15$fuel_type <- as.factor(cleaned_data_top_15$fuel_type)
+sample_data <- cleaned_data_top_15[sample(nrow(cleaned_data_top_15), 10000), ]
+keeps <- c("price", "miles", "year", "make", "body_type", "drivetrain", "engine_size", "fuel_type")
+temp <- sample_data[, keeps]
+temp$make <- as.factor(temp$make)
+temp$body_type <- as.factor(temp$body_type)
+temp$drivetrain <- as.factor(temp$drivetrain)
+temp$fuel_type <- as.factor(temp$fuel_type)
+split<-sample(1:nrow(temp), round(0.7*nrow(temp)))
+train<-temp[split,]
+test<-temp[-split,]
+```
+
+### Random forest
+I originally tried to train the model using the entire cleaned dataset consisting the top 15 brands. However, due to its enormous size, R studio would crash whenever I tried to train the random forest model using the full dataset. Therefore I set the seed and sampled 10000 rows to train this model.
+
+I used 500 trees to train this random forest model because 500 is a reasonable number of trees that balances out accuracy and number of trees.
+
+Below is variable importance plot:
+
+```{r echo = FALSE}
+rf_model <- randomForest(
+  price ~.,
+  num.trees = 500,
+  data = train,
+  na.action = na.omit
+)
+
+varImpPlot(rf_model, main = "Variance Importance Plot - Random Forest")
+```
+
+As shown in the Variance importance plot, engine_size, years are the most important variables in determining the price of a vehicle. Miles, drivetrain, and make all have moderate importance. Body type and fuel type are the least important.
+
+### Gradient boosting model
+I will use the same training and testing data as the previous model. For this model, I will continue to use 500 trees. Due to the large abundance in training data, I will iterate through different shrinkage values between 0.01 to 0.1 and check which yields most accurate prediction. Furthermore, I set cross validation folds to 5 and interaction depth to 7.
+
+```{r include = FALSE}
+shrinkage_values <- seq(0.01, 0.1, length.out = 10)
+mse_values <- numeric(length(shrinkage_values))
+mse_train <- numeric(length(shrinkage_values))
+for (i in seq_along(shrinkage_values)) {
+  boost = gbm(price ~ ., data = train, distribution = "gaussian", n.trees = 500, shrinkage = shrinkage_values[i], cv.folds = 5, interaction.depth = 9)
+  yhat_boost<-predict(boost, test)
+  mse_values[i] <-mean((yhat_boost - test$price) ^ 2)
+  mse_train[i] <- mean((predict(boost, train) - train$price)^2)
+}
+
+optimal_shrinkage <- shrinkage_values[which.min(mse_values)]
+final_model <- gbm(price ~ ., data = train, distribution = "gaussian", n.trees = 500, shrinkage = optimal_shrinkage, cv.folds = 5, interaction.depth = 9)
+summary(final_model, n.trees = 500, plot = TRUE)
+```
+
+```{r echo = FALSE}
+y_lim <- range(c(mse_values, mse_train), na.rm = TRUE)
+
+plot(
+  shrinkage_values,
+  mse_values,
+  type = "b", 
+  col = "blue", 
+  xlab = "Shrinkage Values",
+  ylab = "Mean Squared Error (MSE)",
+  main = "MSE vs. Shrinkage Values",
+  ylim = y_lim
+)
+lines(
+  shrinkage_values,
+  mse_train,
+  type = "b",
+  col = "red",
+  pch = 17
+)
+legend("center",
+       legend = c("Test MSE", "Train MSE"),
+       col = c("blue", "red"),
+       pch = c(19, 17),
+       lty = 1 # Line type
+)
+```
+
+Variance Importance Chart:
+```{r echo = FALSE}
+chart <- summary(final_model, plot=FALSE)
+c <- data.frame(
+  variable = chart$var,
+  rel.inf = chart$rel.inf
+)
+kable(c)
+```
+
+Looking at the variance importance chart, the ranking of the relative influence of the variables is very similar to the one produced by the random forest model.
+
+### Extreme Gradient Boosting
+I will repeat the above with Extreme Gradient Boosting. For the parameters of the model, I will set the maximum depth to (6, 7, 8, 9), use the same shrinkage values, and subsample ratio of columns of (0.8, 0.9, 1). I will use a tuning grid to search for the optimal parameter: it will be run for 10 rounds with iterations ranging incremented by 50 from 50 to 500 and find the optimal shrinkage value.
+
+```{r eval = FALSE, echo = FALSE}
+train_control = trainControl(method = "cv", number = 10, search ="grid")
+tune_grid<-  expand.grid(max_depth = c(6,7,8,9),
+                        nrounds = (1:10)*50,
+                        eta = 0.06,
+                        gamma = 0,
+                        subsample = c(0.8, 0.9, 1),
+                        min_child_weight = 1,
+                        colsample_bytree = 0.6
+                        )
+
+xgbtree<-caret::train(
+  price ~ .,
+  train,
+  na.action = na.omit,
+  method = "xgbTree",
+  trControl = train_control,
+  tuneGrid = tune_grid,
+)
+xgbtree$bestTune
+#used to find the best parameters, will not be included.
+```
+```{r include = FALSE}
+train_control = trainControl(method = "cv", number = 10, search ="grid")
+tune_grid<-  expand.grid(max_depth = 9,
+                        nrounds = 200,
+                        eta = 0.06,
+                        gamma = 0,
+                        subsample = 1,
+                        min_child_weight = 1,
+                        colsample_bytree = 0.6
+                        )
+
+xgbtree<-caret::train(
+  price ~ .,
+  train,
+  na.action = na.omit,
+  method = "xgbTree",
+  trControl = train_control,
+  tuneGrid = tune_grid,
+)
+```
+After searching through the tune grid, I have narrowed the parameters to tree depth of 9, nrounds = 200, learning rate = 0.06, subsample of ratio of columns to be 0.6. After training the model, the variable importance is as follows.
+```{r echo = FALSE}
+varimp <- varImp(
+  xgbtree
+)
+kable(head(varimp$importance, caption = "Variable Importance", n = 10))
+```
+
+Similarly, year, engine size, and miles are the variables with the highest importance in predicting price. Surprisingly, make has the lowest importance here.
+
+# Results
+In order to validate the models, I used them to predict the test data using the parameters and calculated the mean of the absolute difference between the price and the prediction. Here are the results:
+
+```{r include = FALSE}
+x <- mean(abs(as.numeric(predict(final_model, test)) - as.numeric(test$price)))
+```
+```{r echo = FALSE}
+df <- data.frame(
+  Model = c("Random Forest", "Gradient Boosting", "Extreme Gradient Boosting"),
+  MeanAbsoluteError = c(mean(abs(as.numeric(predict(rf_model, test)) - as.numeric(test$price))), x, mean(abs(as.numeric(predict(xgbtree, test)) - as.numeric(test$price))))
+)
+kable(df, col.names = c("Model", "Mean Absolute Error"), align = "c")
+```
+
+As shown in table, extreme gradient boosting is the most accurate model, since it's predictions are closest to the real price. The improvement of using extreme gradient boosting, however, is not significant compared with other models.
+
+I then tested the extreme boosting tree on the larger complete set of data consisting of the popular brands and I got these results.
+
+```{r echo = FALSE}
+results <- abs(as.numeric(predict(xgbtree, cleaned_data_top_15)) - as.numeric(cleaned_data_top_15$price))
+stats <- data.frame(
+  Statistic = c("Mean", "Maximum", "Minimum"),
+  Value = c(mean(results),
+            max(results),
+            min(results)
+))
+max_indices <- order(results, decreasing = TRUE)[1:5]
+min_indices <- order(results, decreasing = FALSE)[1:5]
+top_max_results <- cleaned_data_top_15[max_indices, ]
+top_min_results <- cleaned_data_top_15[min_indices, ]
+```
+```{r echo = FALSE}
+kable(stats, digits = 2)
+```
+
+For the complete dataset, the mean of the absolute error is 3006, minimum is approximately 0, and largest is 554387. Taking a closer look at predictions that were very accurate and very inaccurate, I noticed a pattern.
+
+```{r echo = FALSE}
+top_max_results$vin  <- NULL
+kable(top_max_results, caption = "most inaccurate predictions")
+```
+```{r echo = FALSE}
+top_min_results$vin <- NULL
+kable(top_min_results, caption = "most accurate predictions")
+```
+
+As shown in the above two tables, the extreme gradient boosting algorithm predicts prices of regular vehicles well but fail catastrophically when predicting prices of high end luxury vehicles. This, I believe, is due to the nature of the entire dataset consisting of mostly luxury vehicles.
+
+I tried to scrape data off Autotrader and us it for validation to see whether or not the model fits today's market. However, the data that is on Autotrader is incomplete as it does not specify engine size and fuel type of the vehicle. Same goes with Kijiji. Therefore, I manually scraped a few listings of F150 trucks off Autotrader and run them through the model.
+
+```{r echo = FALSE}
+table <- data.frame(
+  vin = c("car1", "car2", "car3", "car4", "car5"),
+  price = c(64995, 26495, 36995, 95788, 18880),
+  miles = c(28995, 143713, 87464, 26949, 212000),
+  year = c(17, 13, 14, 17, 11),
+  make = c("Ford", "Ford", "Ford", "Ford", "Ford"),
+  model = c("F-150", "F-150", "F-150", "F-150", "F-150"),
+  body_type = c("Pickup", "Pickup", "Pickup", "Pickup", "Pickup"),
+  drivetrain = c("4WD", "4WD", "4WD", "4WD", "4WD"),
+  engine_size = c(3.5, 5, 2.7, 3.5, 5),
+  fuel_type = c("Unleaded", "Unleaded", "Unleaded", "Unleaded", "Unleaded")
+)
+results <- predict(xgbtree, table)
+s <- data.frame(
+  Price = table$price,
+  Predicted = results
+)
+kable(s)
+```
+
+As shown in the table, the prediction of Ford F-150 trucks on the market isn't accurate, but it does give an idea of the price range of the vehicle.
+
+# Conclusion
+With the car listing dataset I downloaded off Kaggle, I trained 3 different models that used mileage, model year, brand, body type, drivetrain, engine size, and fuel type to predict the price of the vehicle. The most accurate model came out to be the Extreme Gradient Boosting model, where the average error it's prediction of vehicles in the entire dataset was about 3000 dollars. The model tells us the most important variables that can be used to predict the variables are engine size followed by mileage, drivetrain, fuel type, body type, then finally make. The model performs very well on normal consumer vehicles but fails on luxury exotic vehicles. Lastly, I tested the model on 5 listings on the current market, and the results weren't accurate, but it did give a good estimate of the price range of the vehicle.
+
+# Future extension
+The model was built on a small sample of a large dataset consisting of many different brands and models of cars. This lead to the model making poor predictions of exotic vehicles but good results of regular vehicles. This problem may be solved by filtering the dataset and training the model exclusively for the specific segment or brand or even model of vehicles.
+
+# Data 
+data: https://www.kaggle.com/datasets/rupeshraundal/marketcheck-automotive-data-us-canada
+
+listing1: https://www.autotrader.ca/a/ford/f-150/north%20york/ontario/5_62125027_20200826183433557/?showcpo=ShowCpo&ncse=no&ursrc=boost_hl&orup=10_15_2719&sprx=100
+
+listing2: https://www.autotrader.ca/a/ford/f-150/cayuga/ontario/5_62041135_20211217192838090/?showcpo=ShowCpo&ncse=no&ursrc=boost_hl&orup=5_15_2719&sprx=100
+
+listing3: https://www.autotrader.ca/a/ford/f-150/mississauga/ontario/5_62118553_on20080331102336047/?showcpo=ShowCpo&ncse=no&ursrc=boost_hl&orup=6_15_2719&sprx=100
+
+listing4: https://www.autotrader.ca/a/ford/f-150/waterloo/ontario/5_61957896_20180810152841763/?showcpo=ShowCpo&ncse=no&ursrc=boost_hl&orup=7_15_2719&sprx=100
+
+listing5: https://www.autotrader.ca/a/ford/f-150/georgetown/ontario/5_61883577_on20080211122257851/?showcpo=ShowCpo&ncse=no&ursrc=pl&urp=2&urm=8&sprx=100
